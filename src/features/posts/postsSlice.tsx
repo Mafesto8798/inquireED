@@ -1,15 +1,18 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
-import type {RootState} from '../../app/store'
-
+import {sub} from 'date-fns'
 
 interface PostsList {
     posts: Array<Post>
 }
 
+
+
 interface Post {
     id:any,
+    date:any,
     title:string,
-    content:string
+    content:string,
+    reactions: Object,
 }
 
 const initialState : PostsList = {
@@ -17,12 +20,16 @@ const initialState : PostsList = {
         {
         id:1,
         title:"Title 1",
-        content:"Welcome!"
+        content:"Welcome!",
+        reactions: {thumbsUp: 0, hooray: 0,heart:0,rocket:0,eyes:0},
+        date: sub(new Date(), {minutes: 10}).toISOString()
         } as Post,
         {
             id:2,
             title:"Story 2",
-            content:"Nice day today"
+            content:"Nice day today",
+            reactions: {thumbsUp: 0, hooray: 0,heart:0,rocket:0,eyes:0},
+            date: sub(new Date(), {minutes: 5}).toISOString()
         } as Post
     ]
 }
@@ -33,9 +40,18 @@ const postsSlice = createSlice({
     reducers:{
         postAdded(state,action: PayloadAction<Post>) {
             state.posts.push(action.payload)
+        },
+        postUpdated(state,action:PayloadAction<Post>){
+            const {id,title,content} = action.payload
+            const existingPost = state.posts.find(post => post.id === id)
+            if(existingPost){
+                existingPost.title = title
+                existingPost.content = content
+            }
         }
     }
 })
-export const {postAdded} = postsSlice.actions
+
+export const {postAdded,postUpdated} = postsSlice.actions
 
 export default postsSlice.reducer
